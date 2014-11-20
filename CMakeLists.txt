@@ -156,11 +156,19 @@ target_link_libraries(gazebo_yarp_externalwrench gazebo_yarp_singleton ${YARP_LI
 install(TARGETS gazebo_yarp_externalwrench
                 DESTINATION lib)
 
-#set(timeSynchronizer_source  src/gazebo_plugins/TimeSynchronizer.cc)
-#set(timeSynchronizer_headers include/gazebo_yarp_plugins/TimeSynchronizer.hh)
+set(timeSynchronizer_source  src/gazebo_plugins/TimeSynchronizer.cc)
+set(timeSynchronizer_headers include/gazebo_yarp_plugins/TimeSynchronizer.hh)
 
-#SOURCE_GROUP("Source Files" FILES ${timeSynchronizer_source})
-#SOURCE_GROUP("Header Files" FILES ${timeSynchronizer_headers})
+SOURCE_GROUP("Source Files" FILES ${timeSynchronizer_source})
+SOURCE_GROUP("Header Files" FILES ${timeSynchronizer_headers})
+
+add_library(gazebo_yarp_timesynchronizer SHARED ${timeSynchronizer_source} ${timeSynchronizer_headers})
+target_link_libraries(gazebo_yarp_timesynchronizer ${YARP_LIBRARIES} ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES})
+
+# Add install target
+install(TARGETS gazebo_yarp_timesynchronizer
+                DESTINATION lib)
+
 
 set(camera_headers          include/gazebo_yarp_plugins/Camera.hh
                             include/gazebo_yarp_plugins/CameraDriver.h)
