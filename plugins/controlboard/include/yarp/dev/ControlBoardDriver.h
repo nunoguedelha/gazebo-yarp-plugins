@@ -481,6 +481,7 @@ private:
     yarp::sig::Vector m_maxStiffness;
     yarp::sig::Vector m_maxDamping;
     yarp::sig::Vector m_kPWM;
+    yarp::os::Bottle m_kinematic_mj;
 
     bool* m_isMotionDone;
     int * m_controlMode;
@@ -503,6 +504,8 @@ private:
     bool setPIDsForGroup_IMPEDANCE( std::vector<std::string>& control_law, std::vector<GazeboYarpControlBoardDriver::PID>&);
     bool setMinMaxImpedance();
     bool setPIDs(); //WORKS
+    bool setKinematic_mj(yarp::os::Bottle* srcCouplingMat);
+    void getKinematic_mj(yarp::os::Bottle& expCouplingMat);
 
     bool check_joint_within_limits_override_torque(int i, double&ref );
 
