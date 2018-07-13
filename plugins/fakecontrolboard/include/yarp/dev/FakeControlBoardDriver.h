@@ -282,8 +282,8 @@ public:
     virtual bool getAmpStatus(int k, int *v);
 
     //CONTROL CALIBRATION (inside comanOthers.cpp)
-    virtual bool calibrate(int j, unsigned int iv, double v1, double v2, double v3);
-    virtual bool done(int j); // NOT IMPLEMENTED
+    virtual bool calibrateAxisWithParams(int j, unsigned int iv, double v1, double v2, double v3) override; //NOT IMPLEMENTED
+    virtual bool calibrationDone(int j) override; // NOT IMPLEMENTED
 
     /*
      * End of useless stuff
