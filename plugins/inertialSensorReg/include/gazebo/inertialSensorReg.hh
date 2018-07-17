@@ -5,8 +5,8 @@
  */
 
 
-#ifndef GAZEBOYARP_INERTIALMTB_HH
-#define GAZEBOYARP_INERTIALMTB_HH
+#ifndef GAZEBOYARP_INERTIALSENSORREG_HH
+#define GAZEBOYARP_INERTIALSENSORREG_HH
 
 #include <gazebo/common/Plugin.hh>
 
@@ -19,22 +19,21 @@ namespace gazebo
         class ImuSensor;
     }
 
-    /// \class GazeboYarpInertialMTB
+    /// \class GazeboYarpInertialSensorReg
     /// Gazebo Plugin for the emulation of the yarp inertial MTB device in Gazebo.
     ///
     /// This plugin adds the inertial Gazebo sensor to the Handler database for
-    /// later retrieval by the inertial MTB driver. This driver and the associated
-    /// network wrapper (provided by yarp::dev::analogServer) will expose the sensor
-    /// data on the yarp network.
+    /// later retrieval by the driver 'EmbObjInertialsDriver'. This driver will
+    /// expose the sensor measurements and metadata to a remapper or wrapper device.
     ///
     /// The only relevant information needed by this plugin is the sensor scoped name
     /// provided by Gazebo.
     ///
-    class GazeboYarpInertialMTB : public SensorPlugin
+    class GazeboYarpInertialSensorReg : public SensorPlugin
     {
     public:
-        GazeboYarpInertialMTB();
-        virtual ~GazeboYarpInertialMTB();
+        GazeboYarpInertialSensorReg();
+        virtual ~GazeboYarpInertialSensorReg();
         virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf);
 
     private:
@@ -42,4 +41,4 @@ namespace gazebo
     };
 }
 
-#endif // GAZEBOYARP_INERTIALMTB_HH
+#endif // GAZEBOYARP_INERTIALSENSORREG_HH

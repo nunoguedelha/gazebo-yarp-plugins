@@ -5,7 +5,7 @@ add_subdirectory(externalwrench)
 add_subdirectory(fakecontrolboard)
 add_subdirectory(forcetorque)
 add_subdirectory(imu)
-add_subdirectory(inertialmtb)
+add_subdirectory(inertialSensorReg)
 add_subdirectory(inertialmtbPart)
 
 # This plugin will be removed soon ( https://github.com/robotology/gazebo-yarp-plugins/issues/213 )

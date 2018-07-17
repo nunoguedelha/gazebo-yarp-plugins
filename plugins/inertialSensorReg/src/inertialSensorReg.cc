@@ -4,7 +4,7 @@
  * CopyPolicy: Released under the terms of the LGPLv2.1 or any later version, see LGPL.TXT or LGPL3.TXT
  */
 
-#include "inertialMTB.hh"
+#include "inertialSensorReg.hh"
 #include <GazeboYarpPlugins/Handler.hh>
 #include <GazeboYarpPlugins/common.h>
 #include <GazeboYarpPlugins/ConfHelpers.hh>
@@ -14,23 +14,23 @@
 #include <yarp/os/Log.h>
 #include <yarp/os/LogStream.h>
 
-GZ_REGISTER_SENSOR_PLUGIN(gazebo::GazeboYarpInertialMTB)
+GZ_REGISTER_SENSOR_PLUGIN(gazebo::GazeboYarpInertialSensorReg)
 
 namespace gazebo {
 
-GazeboYarpInertialMTB::GazeboYarpInertialMTB() : SensorPlugin()
+GazeboYarpInertialSensorReg::GazeboYarpInertialSensorReg() : SensorPlugin()
 {
 }
 
-GazeboYarpInertialMTB::~GazeboYarpInertialMTB()
+GazeboYarpInertialSensorReg::~GazeboYarpInertialSensorReg()
 {
     GazeboYarpPlugins::Handler::getHandler()->removeSensor(this->m_sensorName);
 }
 
-void GazeboYarpInertialMTB::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
+void GazeboYarpInertialSensorReg::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
 {
     if (!_sensor) {
-        gzerr << "GazeboYarpInertialMTB plugin requires a IMUSensor." << std::endl;
+        gzerr << "GazeboYarpInertialSensorReg plugin requires an IMUSensor." << std::endl;
         return;
     }
 
