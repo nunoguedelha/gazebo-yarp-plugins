@@ -100,7 +100,13 @@ bool addGazeboEnviromentalVariablesSensor(gazebo::sensors::SensorPtr _sensor,
                                           sdf::ElementPtr _sdf,
                                           yarp::os::Property & plugin_parameters);
 
-
+/**
+ * Return an empty list if the key is not found, and an error (false) if the key was found
+ * but it is not a list of strings bool getVectorOfStringFromListInConfig(const std::string&
+ * key, const os::Searchable& config, std::vector<std::string> & vectorOfStrings)
+ */
+bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Property& prop,
+                                       std::vector<std::string> & vectorOfStrings);
 
 }
 

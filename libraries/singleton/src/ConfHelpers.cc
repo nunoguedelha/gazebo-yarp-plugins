@@ -149,5 +149,31 @@ bool loadConfigSensorPlugin(sensors::SensorPtr _sensor,
     return true;
 }
 
+bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Property& prop,
+                                       std::vector<std::string> & vectorOfStrings)
+{
+    bool keyExists = prop.check(key.c_str());
+    
+    yarp::os::Bottle *propList=prop.find(key.c_str()).asList();
+    if (!propList && keyExists)
+    {
+        yError() <<"MultipleAnalogSensorsRemapper : Error parsing parameters: if present " << key << " should be followed by a list of strings.\n";
+        return false;
+    }
+    
+    if (!propList && !keyExists)
+    {
+        vectorOfStrings.resize(0);
+        return true;
+    }
+    
+    vectorOfStrings.resize(propList->size());
+    for (size_t ax=0; ax < propList->size(); ax++)
+    {
+        vectorOfStrings[ax] = propList->get(ax).asString().c_str();
+    }
+    
+    return true;
+}
 
 }
