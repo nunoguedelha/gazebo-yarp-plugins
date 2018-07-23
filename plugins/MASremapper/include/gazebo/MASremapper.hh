@@ -44,9 +44,9 @@ namespace gazebo
         GazeboYarpMASremapper();
         virtual ~GazeboYarpMASremapper();
         /**
-         * Saves the gazebo pointer, retrieves the configuration parameters from the
-         * sdf file, creates and opens the remapper device with those parameters as input
-         * configuration for the remapper (enabled connected sensors).
+         * Retrieves the configuration parameters from the sdf file, creates and opens
+         * the remapper device with those parameters as input configuration for the
+         * remapper (mapped sensors).
          */
         virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 

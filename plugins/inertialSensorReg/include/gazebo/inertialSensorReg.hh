@@ -34,6 +34,9 @@ namespace gazebo
     public:
         GazeboYarpInertialSensorReg();
         virtual ~GazeboYarpInertialSensorReg();
+        /**
+         * Saves the gazebo sensor pointer for later retrieval by the driver
+         */
         virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf);
 
     private:

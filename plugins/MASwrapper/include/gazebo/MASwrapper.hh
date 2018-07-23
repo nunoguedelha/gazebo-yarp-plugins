@@ -45,9 +45,9 @@ namespace gazebo
         GazeboYarpMASwrapper();
         virtual ~GazeboYarpMASwrapper();
         /**
-         * Saves the gazebo pointer, retrieves the configuration parameters from the
-         * sdf file, creates and opens the remapper device with those parameters as input
-         * configuration for the remapper (enabled connected sensors).
+         * Retrieves the configuration parameters from the sdf file, creates and opens
+         * the wrapper device with those parameters as input configuration for the
+         * wrapper (Yarp port name where to publish the sensor data).
          */
         virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 

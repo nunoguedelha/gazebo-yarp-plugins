@@ -31,6 +31,7 @@ namespace sdf {
 namespace yarp {
     namespace os {
         class Property;
+        class Searchable;
     }
 }
 
@@ -105,7 +106,7 @@ bool addGazeboEnviromentalVariablesSensor(gazebo::sensors::SensorPtr _sensor,
  * but it is not a list of strings bool getVectorOfStringFromListInConfig(const std::string&
  * key, const os::Searchable& config, std::vector<std::string> & vectorOfStrings)
  */
-bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Property& prop,
+bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Searchable& prop,
                                        std::vector<std::string> & vectorOfStrings);
 
 }

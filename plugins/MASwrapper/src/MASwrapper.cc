@@ -76,15 +76,15 @@ void GazeboYarpMASwrapper::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     
     // Retrieve the device objects from the Handler and build the list of devices to attach
     ::yarp::dev::PolyDriverList deviceList;
-    std::string driverScopedName;
+    std::string deviceScopedName;
     
     // We could consider that the Multiple Analog Sensors Server can have only one device attached but we choose
     // not to do that assumption here for reducing the dependencies. If the number of devices to attach exceeds
     // the wrapper rules, the wrapper itself raises the error.
     for (size_t nameIdx=0; nameIdx<deviceNameList.size(); nameIdx++)
     {
-        driverScopedName = m_robotName+"::"+deviceNameList[nameIdx];
-        yarp::dev::PolyDriver* driver2add = GazeboYarpPlugins::Handler::getHandler()->getDevice(driverScopedName);
+        deviceScopedName = m_robotName+"::"+deviceNameList[nameIdx];
+        yarp::dev::PolyDriver* driver2add = GazeboYarpPlugins::Handler::getHandler()->getDevice(deviceScopedName);
         if (!driver2add)
         {
             yError() << "GazeboYarpMASwrapper associated driver retrieval from Handler failed.";

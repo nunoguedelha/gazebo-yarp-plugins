@@ -95,13 +95,13 @@ void GazeboYarpMASremapper::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf
         yError() << "GazeboYarpForceTorque : error in connecting wrapper and device ";
     }
 
-    // Get the remapper device scoped name "<robotName>::<driverName>". The driver name is unique in the robot URDF model
-    driverScopedName = m_MASremapperDevice.getValue("name").toString();
+    // Get the remapper device scoped name "<robotName>::<deviceName>". The driver name is unique in the robot URDF model
+    std::string deviceScopedName = m_MASremapperDevice.getValue("name").toString();
     
     //Insert the pointer in the singleton handler for retriving it in the yarp driver
-    if (!GazeboYarpPlugins::Handler::getHandler()->setDevice(driverScopedName,&m_MASremapperDevice))
+    if (!GazeboYarpPlugins::Handler::getHandler()->setDevice(deviceScopedName,&m_MASremapperDevice))
     {
-        yError() << "GazeboYarpMASremapper associated driver registering to Handler failed.";
+        yError() << "GazeboYarpMASremapper associated device registering to Handler failed.";
     }
 }
 

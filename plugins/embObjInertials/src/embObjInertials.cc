@@ -74,7 +74,7 @@ void GazeboYarpEmbObjInertials::Load(physics::ModelPtr _parent, sdf::ElementPtr 
     m_embObjInertialsDriver.view(m_iInertials);
     std::string driverScopedName = m_iInertials->getDriverScopedName();
     
-    //Insert the pointer in the singleton handler for retriving it in the yarp driver
+    //Insert the pointer in the singleton handler for retriving it in a remapper or wrapper device
     if (!GazeboYarpPlugins::Handler::getHandler()->setDevice(driverScopedName,&m_embObjInertialsDriver))
     {
         yError() << "GazeboYarpEmbObjInertials associated driver registering to Handler failed.";

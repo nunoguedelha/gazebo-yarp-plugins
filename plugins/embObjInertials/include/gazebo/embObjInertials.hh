@@ -37,7 +37,7 @@ namespace gazebo
     /// which parameters are passed to the Model plugin calling the methods of this class.
     /// Since an EMS board can host a set of sensors distributed accross a full part of
     /// the robot (e.g. EMS10 in the left leg), the respective configuration file in the
-    /// URDF shall be handled by a model model versus a sensor plugin.
+    /// URDF shall be handled by a model plugin versus a sensor plugin.
     ///
     /// The virtual EMS board can be configurated using the yarpConfigurationFile sdf
     /// tag, that contains a Gazebo URI pointing at a yarp .ini configuration file
@@ -52,9 +52,9 @@ namespace gazebo
         GazeboYarpEmbObjInertials();
         virtual ~GazeboYarpEmbObjInertials();
         /**
-         * Saves the gazebo pointer, retrieves the configuration parameters from the
-         * sdf file, creates and opens the device driver with those parameters as input
-         * configuration for the driver (enabled connected sensors).
+         * Retrieves the configuration parameters from the sdf file, creates and opens
+         * the device driver with those parameters as input configuration for the driver
+         * (enabled sensors connected to the EMS).
          */
         virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 

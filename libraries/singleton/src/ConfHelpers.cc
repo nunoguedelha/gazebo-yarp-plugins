@@ -149,7 +149,7 @@ bool loadConfigSensorPlugin(sensors::SensorPtr _sensor,
     return true;
 }
 
-bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Property& prop,
+bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Searchable& prop,
                                        std::vector<std::string> & vectorOfStrings)
 {
     bool keyExists = prop.check(key.c_str());
