@@ -6,6 +6,7 @@
 
 #include "embObjInertialsDriver.h"
 #include <GazeboYarpPlugins/ConfHelpers.hh>
+#include <GazeboYarpPlugins/GazeboAPIHelpers.hh>
 #include <GazeboYarpPlugins/Handler.hh>
 #include <GazeboYarpPlugins/common.h>
 
@@ -18,59 +19,82 @@
 #include <assert.h>
 
 using namespace yarp::dev;
+using namespace GazeboYarpPlugins;
 
 
 GazeboYarpEmbObjInertialsDriver::GazeboYarpEmbObjInertialsDriver() {}
 GazeboYarpEmbObjInertialsDriver::~GazeboYarpEmbObjInertialsDriver() {}
 
 /**
- *
  * Export an inertial sensor.
  * The 3 channels are non calibrated 3-axis (X, Y, Z) acceleration data.
- *
  */
-//void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo &updateInfo)
-//{
-//    // Get current Gazebo timestamp (ms). This is a global timestamp.
-//    // The individual timestamps of each sensor might slightly differ
-//    // as it is the case on the real robot.
-//    // This timestamp can be accessed by the wrapper via the IPreciselyTimed
-//    // interface. Instead, the Analog wrapper is using the its own stamp
-//    // along with the Yarp clock. If Gazebo is launched with the clock plugin,
-//    // the MTB driver and the wrapper will have the same timestamp.
-//    m_lastGazeboTimestamp.update(updateInfo.simTime.Double());
-//
-//    // Get all sensors data
-//    std::vector<gazebo::sensors::ImuSensor*>::iterator sensorIter;
-//    int bufferOffset;
-//    for (sensorIter = m_enabledSensors.begin(),
-//         bufferOffset = sensorDataStartOffset+sensorTimestpNmeasOffset;
-//         sensorIter < m_enabledSensors.end();
-//         sensorIter++,
-//         bufferOffset+=sensorDataLength)
-//    {
-//#if GAZEBO_MAJOR_VERSION >= 6
-//        ignition::math::Vector3d linear_acceleration = (*sensorIter)->LinearAcceleration();
-//#else
-//        gazebo::math::Vector3 linear_acceleration = (*sensorIter)->GetLinearAcceleration();
-//#endif
-//
-//#if GAZEBO_MAJOR_VERSION >= 7
-//        double sensorLastTimestamp = (*sensorIter)->LastUpdateTime().Double();
-//#else
-//        double sensorLastTimestamp = (*sensorIter)->GetLastUpdateTime().Double();
-//#endif
-//
-//        //Fill the 3 channels measurement data, applying the m/s^2 to raw
-//        //fullscale gain
-//        m_dataMutex.wait();
-//        m_inertialmtbOutBuffer[bufferOffset] = sensorLastTimestamp;
-//        for (unsigned idx = 0; idx < 3; idx++) {
-//            m_inertialmtbOutBuffer[bufferOffset+1+idx] = 1e04/5.9855*linear_acceleration[idx];
-//        }
-//        m_dataMutex.post();
-//    }
-//}
+void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo &updateInfo)
+{
+    // Get current Gazebo timestamp (ms). for debug purposes. This is a global
+    // timestamp. The individual timestamps of each sensor might slightly differ
+    // as it is the case on the real robot.
+    // The wrapper device includes in the yarp frame envelope the yarp clock.
+    // If Gazebo is launched with the clock plugin, the Gazebo sensor clocks
+    // and the yarp port envelope clock will be the same (if we neglect the
+    // delays between sensor timestamps in the same yarp frame.
+    m_globalLastTimeStamp.update(updateInfo.simTime.Double());
+
+    // Update all the gyroscopes data
+    std::vector<gazebo::sensors::ImuSensor*>::iterator sensorIter;
+    std::vector<sensorMeasurement_t>::iterator sensorMeasIter;
+    std::vector<sensorMetadata_t>::iterator sensorMetaIter;
+    for (sensorIter = m_enabledSensors.threeAxisGyroscopes.begin(),
+         sensorMeasIter = m_sensorsMeasurements.threeAxisGyroscopes.begin(),
+         sensorMetaIter = m_sensorsMetadata.threeAxisGyroscopes.begin();
+         sensorIter < m_enabledSensors.threeAxisGyroscopes.end();
+         sensorIter++,sensorMeasIter++,sensorMetaIter++)
+    {
+        // Get the sensor measurement and timestamp
+        ignition::math::Vector3d angular_velocity = (*sensorIter)->AngularVelocity();
+        double sensorLastTimestamp = (*sensorIter)->LastUpdateTime().Double();
+        double fixedGain = sensorMetaIter->fixedGain;
+
+        // Lock the mutex
+        std::lock_guard<std::mutex> guard(sensorMeasIter->dataMutex);
+
+        /* Set the timestamp and the measurement (3 channels measurement), applying the m/s^2 to raw fullscale gain:
+         * To convert the gyroscope measure in dps (deg/s) the conversion factor is (fullscale in dps)/(fullscale in raw)
+         * = (250)/(2^15) ~= 7.6274e-03.
+         */
+        sensorMeasIter->timestamp.update(sensorLastTimestamp);
+        sensorMeasIter->status = MAS_OK;
+        sensorMeasIter->measurement[0] = angular_velocity[0]*fixedGain;
+        sensorMeasIter->measurement[1] = angular_velocity[1]*fixedGain;
+        sensorMeasIter->measurement[2] = angular_velocity[2]*fixedGain;
+    }
+
+    // Update all the accelerometers data
+    for (sensorIter = m_enabledSensors.threeAxisLinearAccelerometers.begin(),
+         sensorMeasIter = m_sensorsMeasurements.threeAxisLinearAccelerometers.begin(),
+         sensorMetaIter = m_sensorsMetadata.threeAxisLinearAccelerometers.begin();
+         sensorIter < m_enabledSensors.threeAxisLinearAccelerometers.end();
+         sensorIter++,sensorMeasIter++,sensorMetaIter++)
+    {
+        // Get the sensor measurement and timestamp
+        ignition::math::Vector3d linear_acceleration = (*sensorIter)->LinearAcceleration();
+        double sensorLastTimestamp = (*sensorIter)->LastUpdateTime().Double();
+        double fixedGain = sensorMetaIter->fixedGain;
+
+        // Lock the mutex
+        std::lock_guard<std::mutex> guard(sensorMeasIter->dataMutex);
+        
+        /* Set the timestamp and the measurement (3 channels measurement), applying the m/s^2 to raw fullscale gain:
+         * To convert the accelerometer measure in m/s^2 the conversion factor is (fullscale in m/s^2)/(fullscale in raw)
+         * = (2*g)/(2^15) ~= 5.9855e-04.
+         */
+        sensorMeasIter->timestamp.update(sensorLastTimestamp);
+        sensorMeasIter->status = MAS_OK;
+        sensorMeasIter->measurement[0] = linear_acceleration[0]*fixedGain;
+        sensorMeasIter->measurement[1] = linear_acceleration[1]*fixedGain;
+        sensorMeasIter->measurement[2] = linear_acceleration[2]*fixedGain;
+    }
+}
 
 
 /**

@@ -53,7 +53,7 @@ public:
 
     virtual ~GazeboYarpEmbObjInertialsDriver();
 
-    void onUpdate(const gazebo::common::UpdateInfo&) {}
+    void onUpdate(const gazebo::common::UpdateInfo&);
 
     /**
      * Yarp interfaces start here
@@ -114,7 +114,8 @@ private:
     typedef struct {
         std::string name;
         std::string frameName;
-        double      fixedGain;
+        double      fixedGain; // (SI units -> raw) or (SI units -> SI units) depending on
+                               //the conversion done on the real device
     } sensorMetadata_t;
     
     typedef struct {
@@ -153,6 +154,9 @@ private:
     sensorsMetadata_t     m_sensorsMetadata;
     sensorsMeasurements_t m_sensorsMeasurements; // buffer for all sensors measurements
     enabledSensors_t      m_enabledSensors;
+    
+    /* For debug purposes */
+    yarp::os::Stamp       m_globalLastTimeStamp;
 
     /* Connection and synchro with Gazebo */
     gazebo::event::ConnectionPtr m_updateConnection;

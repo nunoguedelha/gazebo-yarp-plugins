@@ -9,7 +9,8 @@ PROJECT(Library_Singleton)
 include(AddGazeboYarpPluginTarget)
 
 set(Singleton_HEADERS include/GazeboYarpPlugins/Handler.hh
-                      include/GazeboYarpPlugins/ConfHelpers.hh)
+                      include/GazeboYarpPlugins/ConfHelpers.hh
+                      include/GazeboYarpPlugins/GazeboAPIHelpers.hh)
 
 add_gazebo_yarp_plugin_target(LIBRARY_NAME singleton
                               INCLUDE_DIRS include/GazeboYarpPlugins
