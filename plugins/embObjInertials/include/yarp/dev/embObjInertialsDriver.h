@@ -85,9 +85,10 @@ private:
      * Build the vector of enabled sensors as per the ordered
      * list retrieved from the part ini configuration file
      */
-    bool setEnabledSensorsMetadata(std::string robotName,
-                                   std::vector<std::string>& sensorNameList,
-                                   std::vector<std::string>& sensorTypeList);
+    bool setEnabledSensorsMetadata(const std::string& robotName,
+                                   const std::vector<std::string>& sensorNameList,
+                                   const std::vector<std::string>& sensorTypeList);
+    
     /**
      *
      * @brief search the list of strings for a string matching the given end string.
@@ -98,6 +99,7 @@ private:
      * @return                   'true' if a match was found
      */
     inline bool getNameCompletionFromList(std::vector<std::string> &stringList,
+                                          const std::string& robotName,
                                           std::string const &endingString,
                                           std::string &fullString);
 
@@ -115,7 +117,7 @@ private:
         std::string name;
         std::string frameName;
         double      fixedGain; // (SI units -> raw) or (SI units -> SI units) depending on
-                               //the conversion done on the real device
+                               // the conversion done on the real device
     } sensorMetadata_t;
     
     typedef struct {
@@ -149,8 +151,17 @@ private:
                            const std::vector<sensorMeasurement_t>& measurementsVector,
                            size_t sens_index, sig::Vector& out, double& timestamp) const;
 
+    // Go through the lists 'gyroNameList' and 'linAccNameList' and Build the sensors metadata: Gazebo pointers, name,
+    // frameName, fixedGain.
+    bool convert2metadataFormat(const std::string& robotName,
+                                const std::vector<std::string>& sensorNameList,
+                                const std::vector<double>& sensorGainList,
+                                std::vector<std::string>& activeSensors,
+                                std::vector<sensorMetadata_t>& metadataVector,
+                                std::vector<gazebo::sensors::ImuSensor*>& enabledSensors);
+
     /* Yarp interface parameters */
-    std::string           m_driverScopedName = "left_leg-eb10-inertials"; // unique name identifying the driver in the Handler
+    std::string           m_driverScopedName; // unique name identifying the driver in the Handler
     sensorsMetadata_t     m_sensorsMetadata;
     sensorsMeasurements_t m_sensorsMeasurements; // buffer for all sensors measurements
     enabledSensors_t      m_enabledSensors;

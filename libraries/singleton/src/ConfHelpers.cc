@@ -44,6 +44,27 @@ std::vector<std::string> splitString(const std::string &s, const std::string &de
     return retVec;
 }
 
+/**
+ * Concat 2 string lists and return the result
+ */
+//std::vector<std::string> concatStringVectors(const std::vector<std::string>& sVec1, const std::vector<std::string>& sVec2)
+//{
+//    std::vector<std::string> sVecResult;
+//    sVecResult.insert(sVecResult.end(), sVec1.begin(), sVec1.end());
+//    sVecResult.insert(sVecResult.end(), sVec2.begin(), sVec2.end());
+//    return sVecResult;
+//}
+template <typename T, int N>
+std::vector<T> concatStringVectors(const std::array<std::vector<T>,N> sVecArray)
+{
+    std::vector<T> sVecResult;
+    for (int idx = 0; idx < N; idx++)
+    {
+        sVecResult.insert(sVecResult.end(), sVecArray[idx].begin(), sVecArray[idx].end());
+    }
+    return sVecResult;
+}
+
 bool addGazeboEnviromentalVariablesModel(gazebo::physics::ModelPtr _parent,
                                          sdf::ElementPtr _sdf,
                                          yarp::os::Property & plugin_parameters)
@@ -157,7 +178,7 @@ bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::S
     yarp::os::Bottle *propList=prop.find(key.c_str()).asList();
     if (!propList && keyExists)
     {
-        yError() <<"MultipleAnalogSensorsRemapper : Error parsing parameters: if present " << key << " should be followed by a list of strings.\n";
+        yError() <<"GazeboYarpPlugins error: failure parsing parameters: if present " << key << " should be followed by a list of strings.\n";
         return false;
     }
     

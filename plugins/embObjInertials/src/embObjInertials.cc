@@ -47,7 +47,7 @@ void GazeboYarpEmbObjInertials::Load(physics::ModelPtr _parent, sdf::ElementPtr 
     }
 
     // Get the model scoped name
-    m_robotName = _parent->GetScopedName(true);
+    m_robotName = _parent->GetName();
 
     // Add my gazebo device driver to the factory.
     ::yarp::dev::Drivers::factory().add(new ::yarp::dev::DriverCreatorOf< ::yarp::dev::GazeboYarpEmbObjInertialsDriver>
@@ -71,11 +71,12 @@ void GazeboYarpEmbObjInertials::Load(physics::ModelPtr _parent, sdf::ElementPtr 
     }
     
     // Get the driver scoped name "<robotName>::<driverName>". The driver name is unique in the robot URDF model
-    m_embObjInertialsDriver.view(m_iInertials);
-    std::string driverScopedName = m_iInertials->getDriverScopedName();
+    //m_embObjInertialsDriver.view(m_iInertials);
+    //std::string driverScopedName = m_iInertials->getDriverScopedName();
+    std::string deviceScopedName = m_robotName+"::"+m_embObjInertialsDriver.getValue("name").toString();
     
     //Insert the pointer in the singleton handler for retriving it in a remapper or wrapper device
-    if (!GazeboYarpPlugins::Handler::getHandler()->setDevice(driverScopedName,&m_embObjInertialsDriver))
+    if (!GazeboYarpPlugins::Handler::getHandler()->setDevice(deviceScopedName,&m_embObjInertialsDriver))
     {
         yError() << "GazeboYarpEmbObjInertials associated driver registering to Handler failed.";
     }

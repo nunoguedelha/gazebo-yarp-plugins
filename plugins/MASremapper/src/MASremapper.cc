@@ -46,7 +46,7 @@ void GazeboYarpMASremapper::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf
     }
 
     // Get the model scoped name
-    m_robotName = _parent->GetScopedName(true);
+    m_robotName = _parent->GetName();
 
     // The remapper is a YARP device that has already been added in the factory...
 
@@ -96,7 +96,7 @@ void GazeboYarpMASremapper::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf
     }
 
     // Get the remapper device scoped name "<robotName>::<deviceName>". The driver name is unique in the robot URDF model
-    std::string deviceScopedName = m_MASremapperDevice.getValue("name").toString();
+    std::string deviceScopedName = m_robotName+"::"+m_MASremapperDevice.getValue("name").toString();
     
     //Insert the pointer in the singleton handler for retriving it in the yarp driver
     if (!GazeboYarpPlugins::Handler::getHandler()->setDevice(deviceScopedName,&m_MASremapperDevice))

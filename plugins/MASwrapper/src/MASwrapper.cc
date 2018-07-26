@@ -46,7 +46,7 @@ void GazeboYarpMASwrapper::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
     }
 
     // Get the model scoped name
-    m_robotName = _parent->GetScopedName(true);
+    m_robotName = _parent->GetName();
 
     // The remapper is a YARP device that has already been added in the factory...
 
