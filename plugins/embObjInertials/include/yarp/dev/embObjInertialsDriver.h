@@ -87,8 +87,8 @@ private:
      */
     bool setEnabledSensorsMetadata(const std::string& robotName,
                                    const std::vector<std::string>& sensorNameList,
-                                   const std::vector<std::string>& sensorTypeList);
-    
+                                   const std::map<std::string,std::string>& sensorName2typeMap);
+
     /**
      *
      * @brief search the list of strings for a string matching the given end string.

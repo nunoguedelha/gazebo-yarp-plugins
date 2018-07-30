@@ -107,21 +107,35 @@ void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo 
  */
 bool GazeboYarpEmbObjInertialsDriver::open(yarp::os::Searchable& config)
 {
-    // Get from the options the list of enabled sensors
-    std::vector<std::string> sensorNameList;
-    yarp::os::Bottle& settingsGrp = config.findGroup("SERVICE").findGroup("SETTINGS");
-    GazeboYarpPlugins::getVectorOfStringFromListInConfig("enabledSensors", settingsGrp, sensorNameList);
+    std::vector<std::string> sensorNameList, sensorTypeList, enabledSensorList;
     
-    // Get from the options the list of their respective types
-    std::vector<std::string> sensorTypeList;
+    // Get from the options the list of connected sensors and their respective types
     yarp::os::Bottle& sensorsGrp = config.findGroup("SERVICE").findGroup("PROPERTIES").findGroup("SENSORS");
+    GazeboYarpPlugins::getVectorOfStringFromListInConfig("id", sensorsGrp, sensorNameList);
     GazeboYarpPlugins::getVectorOfStringFromListInConfig("type", sensorsGrp, sensorTypeList);
-
+    
+    // Build the mapping from sensor names to types
+    std::map<std::string,std::string> sensorName2typeMap;
+    std::vector<std::string>::const_iterator sensorNamesIter;
+    std::vector<std::string>::const_iterator sensorTypesIter;
+    for  (sensorNamesIter = sensorNameList.begin(),
+          sensorTypesIter = sensorTypeList.begin();
+          sensorNamesIter < sensorNameList.end();
+          sensorNamesIter++,sensorTypesIter++)
+    {
+        // Create an entry pair name/type
+        sensorName2typeMap[*sensorNamesIter] = *sensorTypesIter;
+    }
+    
+    // Get from the options the list of enabled sensors
+    yarp::os::Bottle& settingsGrp = config.findGroup("SERVICE").findGroup("SETTINGS");
+    GazeboYarpPlugins::getVectorOfStringFromListInConfig("enabledSensors", settingsGrp, enabledSensorList);
+    
     // Get the parent model (robot name) for rebuilding the sensors scoped names
     std::string robotName(config.find("gazeboYarpPluginsRobotName").asString().c_str());
 
     // Build the enabled sensors metadata per type (Gazebo pointers, name, frameName, fixedGain)
-    setEnabledSensorsMetadata(robotName,sensorNameList,sensorTypeList);
+    setEnabledSensorsMetadata(robotName,enabledSensorList,sensorName2typeMap);
 
     //Connect the driver to the gazebo simulation
     m_updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboYarpEmbObjInertialsDriver::onUpdate, this, _1));
@@ -137,31 +151,31 @@ bool GazeboYarpEmbObjInertialsDriver::close()
 
 bool GazeboYarpEmbObjInertialsDriver::setEnabledSensorsMetadata(const std::string& robotName,
                                                                 const std::vector<std::string>& sensorNameList,
-                                                                const std::vector<std::string>& sensorTypeList)
+                                                                const std::map<std::string,std::string>& sensorName2typeMap)
 {
     // get the list of registered active sensors (connected to a sensor plugin)
     std::vector<std::string> activeSensors = GazeboYarpPlugins::Handler::getHandler()->getSensors();
 
     // Split the input sensor list into vectors by modality (gyroscopes, accelerometers, ...)
     std::map<std::string,std::vector<std::string> > sensorNamesByType;
-    std::pair<std::map<std::string,std::vector<std::string> >::iterator,bool> mapInsertRet;
     std::vector<std::string>::const_iterator sensorNamesIter;
-    std::vector<std::string>::const_iterator sensorTypesIter;
-    for  (sensorNamesIter = sensorNameList.begin(),
-          sensorTypesIter = sensorTypeList.begin();
+    for  (sensorNamesIter = sensorNameList.begin();
           sensorNamesIter < sensorNameList.end();
-          sensorNamesIter++,sensorTypesIter++)
+          sensorNamesIter++)
     {
-        // Try to insert a new element <key,emptyNameList> in the map
-        std::vector<std::string> aNameList;
-        aNameList.reserve(MAX(sensorNameList.size(), sensorTypeList.size()));
-        mapInsertRet = sensorNamesByType.insert(std::pair<std::string,std::vector<std::string> >
-                                                      (*sensorTypesIter, aNameList));
+        // Get the sensor mapped type. (use map::at() because the operator [] can create an
+        // element if the key doesn't exist, while in this case, the map is a const, not
+        // allowing changes
+        std::string sensorType = sensorName2typeMap.at(*sensorNamesIter);
         
-        // If the key is new in the map, the method returns a pointer to the new pair, otherwise
-        // there is no insertion and the method returns a pointer to the existing pair.
+        // Get an existing mapped element or create a new one:
+        // if the key is new in the map, the method returns a pointer to the new mapped list,
+        // otherwise, there is no insertion and the method returns a pointer to the existing
+        // mapped list.
+        std::vector<std::string>& aNameList = sensorNamesByType[sensorType];
+        
         // Now, add the sensor name in the new/existing list.
-        mapInsertRet.first->second.push_back(*sensorNamesIter);
+        aNameList.push_back(*sensorNamesIter);
     }
     
     std::vector<std::string> gyroNameList = GazeboYarpPlugins::concatStringVectors<std::string,2>({
