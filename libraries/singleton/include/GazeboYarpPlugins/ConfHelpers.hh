@@ -46,14 +46,8 @@ std::vector<std::string> splitString(const std::string &s, const std::string &de
  * Concat 2 string lists and return the result
  */
 //std::vector<std::string> concatStringVectors(const std::vector<std::string>& sVec1, const std::vector<std::string>& sVec2);
-template <typename T, int N>
-std::vector<T> concatStringVectors(const std::array<std::vector<T>,N> sVecArray);
-
-template <int N>
-std::vector<std::string> concatStringVectors(const std::array<std::vector<std::string>,N> sVecArray);
-
-template <int N>
-std::vector<double> concatStringVectors(const std::array<std::vector<double>,N> sVecArray);
+template <class T, int N>
+std::vector<T> concatStringVectors(std::array<std::vector<T>,N> sVecArray);
 
 /**
  * Load the configuration for a given model plugin,

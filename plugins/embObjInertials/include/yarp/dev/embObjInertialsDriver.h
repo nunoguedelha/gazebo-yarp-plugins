@@ -12,7 +12,7 @@
 #include <yarp/dev/DeviceDriver.h>
 #include <yarp/dev/MultipleAnalogSensorsInterfaces.h>
 #include <yarp/os/Stamp.h>
-#include <mutex>
+#include <yarp/os/Semaphore.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -107,7 +107,7 @@ private:
      * Sensor analog data and metadata structure types
      */
     typedef struct {
-        mutable std::mutex    dataMutex; //mutex for accessing the data
+        mutable yarp::os::Semaphore    dataMutex; //mutex for accessing the data
         yarp::sig::Vector     measurement;
         yarp::os::Stamp       timestamp;
         yarp::dev::MAS_status status;

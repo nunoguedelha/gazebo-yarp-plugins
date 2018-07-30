@@ -14,8 +14,6 @@
 #include <yarp/os/Log.h>
 #include <yarp/os/LogStream.h>
 
-#include <yarp/os/LockGuard.h>
-
 #include <assert.h>
 #include <map>
 
@@ -57,7 +55,7 @@ void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo 
         double fixedGain = sensorMetaIter->fixedGain;
 
         // Lock the mutex
-        std::lock_guard<std::mutex> guard(sensorMeasIter->dataMutex);
+        sensorMeasIter->dataMutex.wait();
 
         /* Set the timestamp and the measurement (3 channels measurement), applying the m/s^2 to raw fullscale gain:
          * To convert the gyroscope measure in dps (deg/s) the conversion factor is (fullscale in dps)/(fullscale in raw)
@@ -68,6 +66,9 @@ void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo 
         sensorMeasIter->measurement[0] = angular_velocity[0]*fixedGain;
         sensorMeasIter->measurement[1] = angular_velocity[1]*fixedGain;
         sensorMeasIter->measurement[2] = angular_velocity[2]*fixedGain;
+
+        // Unlock the mutex
+        sensorMeasIter->dataMutex.post();
     }
 
     // Update all the accelerometers data
@@ -83,7 +84,7 @@ void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo 
         double fixedGain = sensorMetaIter->fixedGain;
 
         // Lock the mutex
-        std::lock_guard<std::mutex> guard(sensorMeasIter->dataMutex);
+        sensorMeasIter->dataMutex.wait();
         
         /* Set the timestamp and the measurement (3 channels measurement), applying the m/s^2 to raw fullscale gain:
          * To convert the accelerometer measure in m/s^2 the conversion factor is (fullscale in m/s^2)/(fullscale in raw)
@@ -94,6 +95,9 @@ void GazeboYarpEmbObjInertialsDriver::onUpdate(const gazebo::common::UpdateInfo 
         sensorMeasIter->measurement[0] = linear_acceleration[0]*fixedGain;
         sensorMeasIter->measurement[1] = linear_acceleration[1]*fixedGain;
         sensorMeasIter->measurement[2] = linear_acceleration[2]*fixedGain;
+
+        // Unlock the mutex
+        sensorMeasIter->dataMutex.post();
     }
 }
 
@@ -326,8 +330,10 @@ MAS_status GazeboYarpEmbObjInertialsDriver::genericGetStatus(const std::vector<s
 {
     if (~checkSensorIndex(measurementsVector, tag, sens_index)) {return MAS_UNKNOWN;}
 
-    std::lock_guard<std::mutex> guard(measurementsVector[sens_index].dataMutex);
-    return measurementsVector[sens_index].status;
+    measurementsVector[sens_index].dataMutex.wait();
+    MAS_status status = measurementsVector[sens_index].status;
+    measurementsVector[sens_index].dataMutex.post();
+    return status;
 }
 
 bool GazeboYarpEmbObjInertialsDriver::genericGetName(const std::vector<sensorMetadata_t>& metadataVector, const std::string& tag,
@@ -354,12 +360,14 @@ bool GazeboYarpEmbObjInertialsDriver::genericGetMeasure(const std::vector<sensor
 {
     if (~checkSensorIndex(metadataVector, tag, sens_index)) {return false;}
 
-    std::lock_guard<std::mutex> guard(measurementsVector[sens_index].dataMutex);
+    measurementsVector[sens_index].dataMutex.wait();
     
     assert(metadataVector.size() == measurementsVector.size());
     
     timestamp = measurementsVector[sens_index].timestamp.getTime();
     out = measurementsVector[sens_index].measurement;
+    
+    measurementsVector[sens_index].dataMutex.post();
     
     return true;
 }
@@ -401,7 +409,7 @@ bool GazeboYarpEmbObjInertialsDriver::getNameCompletionFromList(std::vector<std:
             std::string robotNameInSensorScopedName = explodedScopedSensorName[explodedScopedSensorName.size()-3];
             if (robotName.compare(robotNameInSensorScopedName))
             {
-                yError() << "GazeboYarpEmbObjInertialsDriver error: robot name not set in sensor configuration " << *iter;
+                yError() << "GazeboYarpEmbObjInertialsDriver error: robot name from the sensor scoped name (" << *iter << ") doesn't match the name from the sensor configuration file (" << robotName << ")!";
                 return false;
             }
             

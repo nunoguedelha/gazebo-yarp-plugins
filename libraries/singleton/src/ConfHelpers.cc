@@ -54,8 +54,8 @@ std::vector<std::string> splitString(const std::string &s, const std::string &de
 //    sVecResult.insert(sVecResult.end(), sVec2.begin(), sVec2.end());
 //    return sVecResult;
 //}
-template <typename T, int N>
-std::vector<T> concatStringVectors(const std::array<std::vector<T>,N> sVecArray)
+template <class T, int N>
+std::vector<T> concatStringVectors(std::array<std::vector<T>,N> sVecArray)
 {
     std::vector<T> sVecResult;
     for (int idx = 0; idx < N; idx++)
@@ -64,6 +64,14 @@ std::vector<T> concatStringVectors(const std::array<std::vector<T>,N> sVecArray)
     }
     return sVecResult;
 }
+
+template std::vector<std::string> concatStringVectors<std::string,2>(std::array<std::vector<std::string>,2> sVecArray);
+
+template std::vector<std::string> concatStringVectors<std::string,3>(std::array<std::vector<std::string>,3> sVecArray);
+
+template std::vector<double> concatStringVectors<double,2>(std::array<std::vector<double>,2> sVecArray);
+
+template std::vector<double> concatStringVectors<double,3>(std::array<std::vector<double>,3> sVecArray);
 
 bool addGazeboEnviromentalVariablesModel(gazebo::physics::ModelPtr _parent,
                                          sdf::ElementPtr _sdf,
