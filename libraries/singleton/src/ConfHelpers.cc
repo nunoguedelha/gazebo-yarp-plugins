@@ -181,28 +181,30 @@ bool loadConfigSensorPlugin(sensors::SensorPtr _sensor,
 bool getVectorOfStringFromListInConfig(const std::string& key, const yarp::os::Searchable& prop,
                                        std::vector<std::string> & vectorOfStrings)
 {
-    bool keyExists = prop.check(key.c_str());
-    
-    yarp::os::Bottle *propList=prop.find(key.c_str()).asList();
-    if (!propList && keyExists)
+    if (prop.check(key.c_str())) // Key exists
     {
-        yError() <<"GazeboYarpPlugins error: failure parsing parameters: if present " << key << " should be followed by a list of strings.\n";
-        return false;
+        if (!prop.findGroup(key.c_str()).isNull())
+        {
+            yarp::os::Bottle propList = prop.findGroup(key.c_str()).tail();
+            vectorOfStrings.resize(propList.size());
+            for (size_t ax=0; ax<propList.size(); ax++)
+            {
+                vectorOfStrings[ax] = propList.get(ax).asString().c_str();
+            }
+            return true;
+        }
+        else
+        {
+            yError() <<"GazeboYarpPlugins error: failure parsing parameters: if present " << key
+            << " should be followed by one or multiple strings.\n";
+            return false;
+        }
     }
-    
-    if (!propList && !keyExists)
+    else // Key doesn't exist
     {
         vectorOfStrings.resize(0);
         return true;
     }
-    
-    vectorOfStrings.resize(propList->size());
-    for (size_t ax=0; ax < propList->size(); ax++)
-    {
-        vectorOfStrings[ax] = propList->get(ax).asString().c_str();
-    }
-    
-    return true;
 }
 
 }
