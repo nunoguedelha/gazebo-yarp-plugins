@@ -8,8 +8,7 @@ add_subdirectory(imu)
 add_subdirectory(inertialSensorReg)
 add_subdirectory(inertialmtbPart)
 add_subdirectory(embObjInertials)
-add_subdirectory(MASremapper)
-add_subdirectory(MASwrapper)
+add_subdirectory(robotInterface)
 
 # This plugin will be removed soon ( https://github.com/robotology/gazebo-yarp-plugins/issues/213 )
 # for the time being do not update it for compliance with Gazebo 9

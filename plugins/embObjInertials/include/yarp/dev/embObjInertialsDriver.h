@@ -156,7 +156,6 @@ private:
     bool convert2metadataFormat(const std::string& robotName,
                                 const std::vector<std::string>& sensorNameList,
                                 const std::vector<double>& sensorGainList,
-                                std::vector<std::string>& activeSensors,
                                 std::vector<sensorMetadata_t>& metadataVector,
                                 std::vector<gazebo::sensors::ImuSensor*>& enabledSensors);
 

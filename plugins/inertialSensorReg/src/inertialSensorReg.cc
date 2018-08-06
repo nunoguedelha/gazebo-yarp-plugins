@@ -24,7 +24,6 @@ GazeboYarpInertialSensorReg::GazeboYarpInertialSensorReg() : SensorPlugin()
 
 GazeboYarpInertialSensorReg::~GazeboYarpInertialSensorReg()
 {
-    GazeboYarpPlugins::Handler::getHandler()->removeSensor(this->m_sensorName);
 }
 
 void GazeboYarpInertialSensorReg::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
