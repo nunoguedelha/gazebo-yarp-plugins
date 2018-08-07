@@ -11,15 +11,15 @@
 #include <GazeboYarpPlugins/common.h>
 #include <GazeboYarpPlugins/ConfHelpers.hh>
 
-#include "Module.h"
+#include <yarp/os/Network.h>
 #include <yarp/os/Log.h>
 #include <yarp/os/LogStream.h>
 
-#include <yarp/os/Network.h>
-#include <yarp/os/Time.h>
-#include <yarp/dev/Drivers.h>
+#include <boost/process.hpp>
 
 GZ_REGISTER_MODEL_PLUGIN(gazebo::GazeboYarpRobotInterface)
+
+namespace bp = boost::process;
 
 namespace gazebo {
 
@@ -73,21 +73,19 @@ void GazeboYarpRobotInterface::Load(physics::ModelPtr _parent, sdf::ElementPtr _
     std::string yarpRobotName = robotInterface_properties.find("robot").asString();
     std::string hardwareConfigFileTag = "--config";
     std::string hardwareConfigFile = robotInterface_properties.find("config").asString();
-    char* argValues[5];
+    char* argValues[6];
     argValues[0] = &programName[0];
     argValues[1] = &yarpRobotNameTag[0];
     argValues[2] = &yarpRobotName[0];
     argValues[3] = &hardwareConfigFileTag[0];
-    argValues[4] = &hardwareConfigFileTag[0];
+    argValues[4] = &hardwareConfigFile[0];
+    argValues[5] = NULL;
+    std::string yarpcommand = "yarprobotinterface --robot " + yarpRobotName + " --config " + hardwareConfigFile;
 
-    yarp::os::ResourceFinder &rf(yarp::os::ResourceFinder::getResourceFinderSingleton());
-    rf.setVerbose();
-    rf.setDefaultConfigFile("gazebo_yarp_robotinterface.ini");
-    rf.configure(5,&argValues[0]);
+    // Run the yarprobotinterface executable
+    bp::spawn(yarpcommand.c_str());
     
-    // Create and run our module
-    RobotInterface::Module module;
-    module.runModule(rf);
+    yarp::os::Time::delay(10);
 }
 
 }

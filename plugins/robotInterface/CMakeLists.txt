@@ -14,11 +14,11 @@ if(CMAKE_VERSION VERSION_LESS 3.0.0)
     unset(LIB_COMMON_NAME)
 endif()
 
-add_gazebo_yarp_plugin_target(LIBRARY_NAME yarpRobotInterface
+add_gazebo_yarp_plugin_target(LIBRARY_NAME robotInterface
                               INCLUDE_DIRS include/gazebo
                               SYSTEM_INCLUDE_DIRS ${GAZEBO_YARP_COMMON_HEADERS} ${Boost_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS}  ${SDFORMAT_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS}
                               LINKED_LIBRARIES ${LIB_COMMON_NAME} gazebo_yarp_singleton ${YARP_LIBRARIES} ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES}
-                              HEADERS include/gazebo/yarpRobotInterface.hh
-                              SOURCES src/yarpRobotInterface.cc
+                              HEADERS include/gazebo/robotInterface.hh
+                              SOURCES src/robotInterface.cc
                                  )
 
