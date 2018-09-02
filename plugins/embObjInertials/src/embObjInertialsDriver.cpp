@@ -132,14 +132,10 @@ bool GazeboYarpEmbObjInertialsDriver::open(yarp::os::Searchable& config)
     GazeboYarpPlugins::getVectorOfStringFromListInConfig("enabledSensors", settingsGrp, enabledSensorList);
     
     // Get the parent model (robot name) for rebuilding the sensors scoped names
-    //std::string robotName(config.find("gazeboYarpPluginsRobotName").asString().c_str());
-    std::string robotName("iCub_fixed");
+    std::string robotName(config.find("robotname").asString().c_str());
 
     // Build the enabled sensors metadata per type (Gazebo pointers, name, frameName, fixedGain)
     setEnabledSensorsMetadata(robotName,enabledSensorList,sensorName2typeMap);
-
-    //Connect the driver to the gazebo simulation
-    m_updateConnection = gazebo::event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboYarpEmbObjInertialsDriver::onUpdate, this, _1));
 
     return true;
 }
@@ -190,13 +186,13 @@ bool GazeboYarpEmbObjInertialsDriver::setEnabledSensorsMetadata(const std::strin
     });
     
     std::vector<double> gyroGainList = GazeboYarpPlugins::concatStringVectors<double,2>({
-        std::vector<double>(sensorNamesByType["eoas_gyros_st_l3g4200d"].size(),pow(2.0,15)/250),
+        std::vector<double>(sensorNamesByType["eoas_gyros_st_l3g4200d"].size(),1),
         std::vector<double>(sensorNamesByType["eoas_imu_gyr"].size(),1)
     });
     
     std::vector<double> linAccGainList = GazeboYarpPlugins::concatStringVectors<double,3>({
         std::vector<double>(sensorNamesByType["eoas_accel_st_lis3x"].size(),1),
-        std::vector<double>(sensorNamesByType["eoas_accel_mtb_int"].size(),pow(2.0,15)/(2*9.81)),
+        std::vector<double>(sensorNamesByType["eoas_accel_mtb_int"].size(),1),
         std::vector<double>(sensorNamesByType["eoas_imu_acc"].size(),1)
     });
     
@@ -231,9 +227,6 @@ bool GazeboYarpEmbObjInertialsDriver::convert2metadataFormat(const std::string& 
                                                              std::vector<sensorMetadata_t>& metadataVector,
                                                              std::vector<gazebo::sensors::ImuSensor*>& enabledSensors)
 {
-    // get the list of registered active sensors (connected to a sensor plugin)
-    std::vector<std::string> activeSensors = GazeboYarpPlugins::Handler::getHandler()->getSensors();
-    
     // Iterators
     std::vector<std::string>::const_iterator sensorNamesIter;
     std::vector<double>::const_iterator sensorGainsIter;
@@ -246,32 +239,6 @@ bool GazeboYarpEmbObjInertialsDriver::convert2metadataFormat(const std::string& 
         // Fill and push the metadata element
         sensorMetadata_t metadata = {*sensorNamesIter,*sensorNamesIter,*sensorGainsIter};
         metadataVector.push_back(metadata);
-        
-        // Get the sensor scoped name
-        std::string sensorScopedName;
-        if (!getNameCompletionFromList(activeSensors,robotName,*sensorNamesIter,sensorScopedName))
-        {
-            yError() << "GazeboYarpEmbObjInertialsDriver Error: required sensor name "
-            << *sensorNamesIter << " was not found";
-            return false;
-        }
-        
-        //Get the gazebo pointer (we assume it has been previously added by a sensor plugin)
-        gazebo::sensors::ImuSensor* sensorPtr =
-        dynamic_cast<gazebo::sensors::ImuSensor*>(GazeboYarpPlugins::Handler::getHandler()->getSensor(sensorScopedName));
-        
-        if (!sensorPtr) {
-            yError() << "GazeboYarpEmbObjInertialsDriver Error: required sensor scoped name "
-            << sensorScopedName << " was not found";
-            return false;
-        }
-        else {
-            // Make sure that each sensor is connected to a single driver, so remove it from the list
-            GazeboYarpPlugins::Handler::getHandler()->removeSensor(sensorScopedName);
-        }
-        
-        // Add sensor to the building vector
-        enabledSensors.push_back(sensorPtr);
     }
     
     return true;

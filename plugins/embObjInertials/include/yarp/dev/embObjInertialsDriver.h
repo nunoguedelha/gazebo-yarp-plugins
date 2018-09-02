@@ -30,10 +30,6 @@ namespace gazebo {
     namespace sensors {
         class ImuSensor;
     }
-    namespace event {
-        class Connection;
-        typedef boost::shared_ptr<Connection> ConnectionPtr;
-    }
 }
 
 /// \class GazeboYarpEmbObjInertialsDriver
@@ -167,9 +163,6 @@ private:
     
     /* For debug purposes */
     yarp::os::Stamp       m_globalLastTimeStamp;
-
-    /* Connection and synchro with Gazebo */
-    gazebo::event::ConnectionPtr m_updateConnection;
 };
 
 #endif // GAZEBOYARP_EMBOBJINERTIALSDRIVER_H
